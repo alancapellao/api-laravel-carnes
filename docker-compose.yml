@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root 
+      MYSQL_DATABASE: app 
+      TZ: 'America/Sao_Paulo'  
+    ports:
+      - "3308:3306"
+    networks:
+      - app-network 
+    mem_limit: 2gb  
+    restart: always  
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"  
+    volumes:
+      - .:/var/www/html  
+    networks:
+      - app-network
+    command: bash -c "chmod 777 -R storage && composer install && /usr/sbin/apache2ctl -D FOREGROUND" 
+    depends_on:
+      - mysql  
+
+networks:
+  app-network:
